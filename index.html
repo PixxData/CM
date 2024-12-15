@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload with Modern EXIF Data Display</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #333;
+            font-size: 24px;
+            text-align: center;
+        }
+        .container {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .image-container {
+            max-width: 400px;
+            margin-right: 20px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #fff;
+        }
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+        }
+        .exif-data {
+            max-width: 300px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .exif-data h3 {
+            color: #444;
+            font-size: 20px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .exif-data p {
+            color: #555;
+            line-height: 1.6;
+        }
+        .exif-data strong {
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Image Upload with EXIF Data</h1>
+
+<input type="file" id="imageInput" accept="image/*" style="display: block; margin: 0 auto;">
+<div class="container">
+    <div class="image-container">
+        <img id="imageDisplay" alt="Your Image Will Appear Here">
+    </div>
+    <div class="exif-data">
+        <h3>Image Details</h3>
+        <p id="exifInfo">Upload an image to see its EXIF data.</p>
+    </div>
+</div>
+
+<script>
+    document.getElementById('imageInput').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.getElementById('imageDisplay');
+                img.src = e.target.result;
+
+                EXIF.getData(file, function() {
+                    const exifData = EXIF.getAllTags(this);
+                    let exifInfo = '';
+
+                    // Specific EXIF data with modern labels
+                    exifInfo += `<strong>Filename:</strong> ${file.name}<br>`;
+                    exifInfo += `<strong>File Size:</strong> ${(file.size / (1024 * 1024)).toFixed(2)} MB<br>`;
+                    exifInfo += `<strong>Pixel Dimensions:</strong> ${exifData.PixelXDimension || 'Unknown'} x ${exifData.PixelYDimension || 'Unknown'}<br>`;
+                    exifInfo += `<strong>Date Taken:</strong> ${exifData.DateTimeOriginal || 'Unknown'}<br>`;
+                    exifInfo += `<strong>Camera:</strong> ${exifData.Make || 'Unknown'} ${exifData.Model || 'Unknown'}<br>`;
+                    exifInfo += `<strong>Lens:</strong> ${exifData.LensModel || exifData.undefined || 'Unknown'}<br>`;
+                    exifInfo += `<strong>Aperture:</strong> f/${exifData.FNumber || 'Unknown'}<br>`;
+                    exifInfo += `<strong>Shutter Speed:</strong> 1/${exifData.ExposureTime || 'Unknown'} sec<br>`;
+                    exifInfo += `<strong>ISO:</strong> ${exifData.ISOSpeedRatings || 'Unknown'}<br>`;
+                    exifInfo += `<strong>Exposure Program:</strong> ${exifData.ExposureProgram || 'Unknown'}<br>`;
+                    exifInfo += `<strong>Metering Mode:</strong> ${exifData.MeteringMode || 'Unknown'}<br>`;
+                    exifInfo += `<strong>Exposure Bias:</strong> ${exifData.ExposureBias || 'Unknown'}<br>`;
+                    exifInfo += `<strong>White Balance:</strong> ${exifData.WhiteBalance || 'Unknown'}<br>`;
+                    exifInfo += `<strong>Focal Length:</strong> ${exifData.FocalLength || 'Unknown'} mm<br>`;
+
+                    document.getElementById('exifInfo').innerHTML = exifInfo;
+                });
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
+
+</body>
+</html>
